@@ -6,20 +6,22 @@ ini_set('display_errors', 'on');
 //*/
 
 $opt = getopt("", array("path::", "plugins::"));
+$opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
+$opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['path']);
 
-class ojs_config_tool {
+if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
+    die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
+}
+require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
+import('classes.journal.Journal');
+
+
+class ojs_config_tool extends CommandLineTool {
 
     public $options = array();
 
     function __construct($opt = array()) {
-        $opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
-        $opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['path']);
 
-        if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
-            die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
-        }
-        require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
-        import('classes.journal.Journal');
 
         $this->options = $opt;
     }
