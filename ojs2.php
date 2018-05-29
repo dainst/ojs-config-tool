@@ -13,7 +13,7 @@ class ojs_config_tool {
 
     function __construct($opt = array()) {
         $opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
-        $opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['path']));
+        $opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['path']);
 
         if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
             die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
