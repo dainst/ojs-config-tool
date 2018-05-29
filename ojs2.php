@@ -47,7 +47,12 @@ class ojs_config_tool extends CommandLineTool {
                     //echo print_r($plugin);
                     echo "\nn: " . $plugin->getName();
                     echo "\nd: " . $plugin->getDisplayName();
-                    echo "\ne: " . $plugin->getEnabled($journalId);
+                    if (method_exists($plugin, getEnabled)) {
+                        echo "\ne: " . $plugin->getEnabled($journalId);
+                    } else {
+                        echo "\ne NO getEnabled Function";
+                    }
+
                     /*$this->updateSetting($journalId, 'enabled', true);*/
                     echo "\n";
                 }
