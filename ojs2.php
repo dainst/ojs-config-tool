@@ -43,15 +43,11 @@ class ojs_config_tool extends CommandLineTool {
             echo "\n========== $category ===========\n";
             if (is_array($plugins)) {
                 foreach ($plugins as $id => $plugin) {
-                    echo "$id\n";
+                    echo "\n[$id]";
                     //echo print_r($plugin);
                     echo "\nn: " . $plugin->getName();
-                    echo "\nd: " . $plugin->getDisplayName();
-                    if (method_exists($plugin, getEnabled)) {
-                        echo "\ne: " . $plugin->getEnabled($journalId);
-                    } else {
-                        echo "\ne NO getEnabled Function";
-                    }
+                    echo "\ne: " . getSetting($journalId, 'enabled');
+
 
                     /*$this->updateSetting($journalId, 'enabled', true);*/
                     echo "\n";
