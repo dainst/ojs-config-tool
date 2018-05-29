@@ -24,11 +24,11 @@ class ojs_config_tool extends CommandLineTool {
         $this->createJournal();
     }
 
-    function createJournal($name='test', $path='test') {
+    function createJournal($title='test', $path='test') {
         $journal = New Journal();
         $journal->setPath('test');
         $journal->setEnabled(true);
-        $journal->setData('title', $name);
+        $journal->updateSetting('title', $title, 'string', true);
         $journal->setPrimaryLocale(AppLocale::getLocale());
         $journalDao = DAORegistry::getDAO('JournalDAO');
         return $journalDao->insertJournal($journal);
