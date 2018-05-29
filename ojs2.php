@@ -21,7 +21,7 @@ class ojs_config_tool extends CommandLineTool {
     public $options = array();
 
     function __construct($opt = array()) {
-
+        parent::__construct();
 
         $this->options = $opt;
     }
