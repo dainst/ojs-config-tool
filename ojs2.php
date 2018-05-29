@@ -8,11 +8,11 @@ ini_set('display_errors', 'on');
 $argv = isset($argv) ? $argv : array();
 $argv['path'] = !isset($argv['path']) ? '/var/www/html/ojs/' : realpath($argv['path']);
 
-if (!file_exists(realpath($argv['path'] . 'tools/bootstrap.inc.php'))) {
+if (!file_exists(realpath($argv['path'] . '/tools/bootstrap.inc.php'))) {
     die("No OJS2 installation at '{$argv['path']}' found. Aborted.'\n");
 }
 
-require('tools/bootstrap.inc.php');
+require(realpath($argv['path'] . '/tools/bootstrap.inc.php'));
 
 class ojs_config_tool extends CommandLineTool {
 
