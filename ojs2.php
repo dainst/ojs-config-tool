@@ -9,7 +9,7 @@ $opt = getopt("", array("path::", "plugins::"));
 
 class ojs_config_tool {
 
-    $this->options = array();
+    public $options = array();
 
     function __construct($opt = array()) {
         $opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
