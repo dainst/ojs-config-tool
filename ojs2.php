@@ -20,6 +20,7 @@ class ojs_config_tool {
         }
         require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
         import('classes.journal.Journal');
+
         $this->options = $opt;
     }
 
@@ -46,8 +47,11 @@ class ojs_config_tool {
                     echo "\nn: " . $plugin->getName();
                     echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
 
-
-                    /*$this->updateSetting($journalId, 'enabled', true);*/
+                    if (in_array($plugin->getName(), $this->options['plugins'])) {
+                        $this->updateSetting($journalId, 'enabled', true);
+                        echo "\n I ENABLED IT, LOOK:";
+                        echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
+                    }
                     echo "\n";
                 }
             } else {
