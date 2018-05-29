@@ -36,7 +36,7 @@ class ojs_config_tool extends CommandLineTool {
     }
 
     function enablePlugins() {
-        foreach (PluginRegistry::getPlugins() as $id = $plugin) {
+        foreach (PluginRegistry::getPlugins() as $id => $plugin) {
             echo "$id\n";
             echo print_r($plugin);
             echo "\n";
