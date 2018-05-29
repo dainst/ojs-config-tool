@@ -28,7 +28,7 @@ class ojs_config_tool extends CommandLineTool {
         $journal = New Journal();
         $journal->setPath('test');
         $journal->setEnabled(true);
-        $journal->updateSetting('title', $title, 'string', true);
+        $journal->updateSetting('title', $title, 'string', false);
         $journal->setPrimaryLocale(AppLocale::getLocale());
         $journalDao = DAORegistry::getDAO('JournalDAO');
         return $journalDao->insertJournal($journal);
