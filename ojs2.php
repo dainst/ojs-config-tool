@@ -50,7 +50,7 @@ class ojs_config_tool extends CommandLineTool {
                     echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
 
                     if (in_array($plugin->getName(), $this->options['plugins'])) {
-                        $this->updateContextSpecificSetting(array($journalId), 'enabled', true);
+                        $plugin->updateSetting($journalId, 'enabled', true);
                         echo "\n I ENABLED IT, LOOK:";
                         echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
                     }
