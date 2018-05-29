@@ -5,14 +5,15 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 //*/
 
-$argv = isset($argv) ? $argv : array();
-$argv['path'] = !isset($argv['path']) ? '/var/www/html/ojs/' : realpath($argv['path']);
+$opt = getopt("", array("path::"));
+$opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
 
-if (!file_exists(realpath($argv['path'] . '/tools/bootstrap.inc.php'))) {
-    die("No OJS2 installation at '{$argv['path']}' found. Aborted.'\n");
+
+if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
+    die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
 }
 
-require(realpath($argv['path'] . '/tools/bootstrap.inc.php'));
+require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
 import('classes.journal.Journal');
 
 class ojs_config_tool extends CommandLineTool {
@@ -34,6 +35,6 @@ class ojs_config_tool extends CommandLineTool {
     }
 }
 
-$tool = new ojs_config_tool($argv);
+$tool = new ojs_config_tool();
 
 ?>
