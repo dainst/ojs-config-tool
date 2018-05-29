@@ -5,24 +5,22 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 //*/
 
-$opt = getopt("", array("path::"));
-$opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
+$opt = getopt("", array("path::", "plugins::"));
 
+class ojs_config_tool {
 
-if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
-    die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
-}
+    $this->options = array();
 
-require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
-import('classes.journal.Journal');
+    function __construct($opt = array()) {
+        $opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
+        $opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['path']));
 
-class ojs_config_tool extends CommandLineTool {
-
-
-    function __construct($argv = array()) {
-        parent::CommandLineTool($argv);
-        $journalId = $this->createJournal();
-        $this->enablePlugins($journalId);
+        if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
+            die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
+        }
+        require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
+        import('classes.journal.Journal');
+        $this->options = $opt;
     }
 
     function createJournal($title='test', $path='test') {
@@ -46,7 +44,7 @@ class ojs_config_tool extends CommandLineTool {
                     echo "\n[$id]";
                     //echo print_r($plugin);
                     echo "\nn: " . $plugin->getName();
-                    echo "\ne: " . getSetting($journalId, 'enabled');
+                    echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
 
 
                     /*$this->updateSetting($journalId, 'enabled', true);*/
@@ -61,6 +59,7 @@ class ojs_config_tool extends CommandLineTool {
     }
 }
 
-$tool = new ojs_config_tool();
-
+$tool = new ojs_config_tool($opt);
+$journalId = $tool->createJournal();
+$tool->enablePlugins($journalId);
 ?>
