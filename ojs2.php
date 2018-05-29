@@ -21,7 +21,7 @@ class ojs_config_tool extends CommandLineTool {
 
     function __construct($argv = array()) {
         parent::CommandLineTool($argv);
-        $this->createJournal();
+        $this->enablePlugins();
     }
 
     function createJournal($title='test', $path='test') {
@@ -33,6 +33,14 @@ class ojs_config_tool extends CommandLineTool {
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
+    }
+
+    function enablePlugins() {
+        foreach (PluginRegistry::getPlugins() as $id = $plugin) {
+            echo "$id\n";
+            echo print_r($plugin);
+            echo "\n";
+        }
     }
 }
 
