@@ -39,7 +39,7 @@ class ojs_config_tool extends CommandLineTool {
 
     function enablePlugins($journalId) {
         foreach (PluginRegistry::getCategories() as $category) {
-            $plugins = PluginRegistry::getPlugins($category);
+            $plugins = PluginRegistry::loadCategory($category, false, $journalId);
             echo "\n========== $category ===========\n";
             if (is_array($plugins)) {
                 foreach ($plugins as $id => $plugin) {
