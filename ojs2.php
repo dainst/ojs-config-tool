@@ -13,6 +13,7 @@ if (!file_exists(realpath($argv['path'] . '/tools/bootstrap.inc.php'))) {
 }
 
 require(realpath($argv['path'] . '/tools/bootstrap.inc.php'));
+import('classes.journal.Journal');
 
 class ojs_config_tool extends CommandLineTool {
 
