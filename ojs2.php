@@ -31,7 +31,7 @@ class ojs_config_tool extends CommandLineTool {
     }
 
     function createJournal($title = false, $path = false) {
-        $title = $title or $this->options['title'];
+        $title = $title or $this->options['title'] or "test";
         $path = $path or $this->options['path'];
         $journal = New Journal();
         $journal->setPath('test');
@@ -74,7 +74,7 @@ class ojs_config_tool extends CommandLineTool {
 
     private function _getTheme($theme) {
       $plugin = PluginRegistry::getPlugin("themes", $theme);
-      if (!method_exists($plugin, activate)) {
+      if (!method_exists($plugin, "activate")) {
           error("$theme does not exist!");
       }
       return $plugin;
