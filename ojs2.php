@@ -67,7 +67,7 @@ class ojs_config_tool extends CommandLineTool {
             $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
             if (!is_a($plugin, "Plugin")) {
-                echo "nope, becaus it's a " + get_class($plugin);
+                echo "nope, becaus it's a " . get_class($plugin);
                 continue;
             }
 
