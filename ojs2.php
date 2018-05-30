@@ -108,6 +108,12 @@ class ojs_config_tool extends CommandLineTool {
         echo "success\n";
     }
 
+
+    function clearTemplateCache() {
+        $templateMgr =& TemplateManager::getManager();
+        $templateMgr->clearTemplateCache();
+    }
+
 }
 
 try {
@@ -116,6 +122,7 @@ try {
   $tool->enablePlugins($journalId, $opt["journal.plugins"]);
   $tool->setTheme($opt["theme"]);
   $tool->setJournalTheme($journalId, $opt["journal.theme"]);
+  $tool->clearTemplateCache();
 } catch (Exception $e) {
   error($e->getMessage());
 }
