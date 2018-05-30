@@ -62,7 +62,7 @@ class ojs_config_tool extends CommandLineTool {
         }
         foreach ($plugins as $pluginAndCategory) {
             echo "Enable Plugin: $pluginAndCategory ...";
-            list($category, $pluginName) = split($pluginAndCategory);
+            list($category, $pluginName) = explode("/", $pluginAndCategory);
             $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
             if (is_a("Plugin", $plugin)) {
