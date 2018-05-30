@@ -17,7 +17,7 @@ $opt = getopt(
     )
 ) + array(
     "path" => '/var/www/html/ojs/',
-    "journal.plugins" => "ClassicRedThemePlugin",
+    "journal.plugins" => "",
     "journal.theme" => "ClassicRedThemePlugin",
     "journal.title" => "test",
     "journal.path" => "test",
@@ -65,7 +65,7 @@ class ojs_config_tool extends CommandLineTool {
             list($category, $pluginName) = explode("/", $pluginAndCategory);
             $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
-            if (is_a("Plugin", $plugin)) {
+            if (!is_a("Plugin", $plugin)) {
                 echo "nope\n";
                 continue;
             }
