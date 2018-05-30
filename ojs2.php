@@ -24,7 +24,7 @@ $opt = getopt(
     "theme" => "ClassicRedThemePlugin"
 );
 $opt['path'] = realpath($opt['path']);
-$opt['plugins'] = explode(",", $opt['plugins']);
+$opt['journal.plugins'] = explode(",", $opt['journal.plugins']);
 
 if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
     die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
@@ -57,6 +57,9 @@ class ojs_config_tool extends CommandLineTool {
     }
 
     function enablePlugins($journalId, $plugins) {
+        if (!is_array($plugins)) {
+            return;
+        }
         foreach ($plugins as $pluginAndCategory) {
             echo "Enable Plugin: $pluginAndCategory ...";
             list($category, $pluginName) = split($pluginAndCategory);
