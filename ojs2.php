@@ -118,8 +118,8 @@ class ojs_config_tool extends CommandLineTool {
 
 try {
   $tool = new ojs_config_tool($opt);
-  $journalId = $tool->createJournal($opt["title"], $opt["path"]);
-  $tool->enablePlugins($journalId, $opt["journal.plugins"]);
+  $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
+  //$tool->enablePlugins($journalId, $opt["journal.plugins"]);
   $tool->setTheme($opt["theme"]);
 } catch (Exception $e) {
   error($e->getMessage());
