@@ -18,10 +18,10 @@ $opt = getopt(
 ) + array(
     "path" => '/var/www/html/ojs/',
     "journal.plugins" => "",
-    "journal.theme" => "ClassicRedThemePlugin",
+    "journal.theme" => "desert",
     "journal.title" => "test",
     "journal.path" => "test",
-    "theme" => "ClassicRedThemePlugin"
+    "theme" => "desert"
 );
 $opt['path'] = realpath($opt['path']);
 $opt['journal.plugins'] = explode(",", $opt['journal.plugins']);
