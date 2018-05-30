@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 //*/
 
-$opt = getopt("", array("path::", "plugins::"));
+$opt = getopt("", array("path::", "journal.plugins::", "journal.theme::", "journal.title::", "journal.path::", "theme::"));
 $opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
 $opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['plugins']);
 
@@ -30,8 +30,7 @@ class ojs_config_tool extends CommandLineTool {
         $this->options = $opt;
     }
 
-    function createJournal($title = false, $path = false) {
-        $title = $title or $this->options['title'] or "test";
+    function createJournal($title = "test", $path = "test") {
         $path = $path or $this->options['path'];
         $journal = New Journal();
         $journal->setPath('test');
@@ -44,8 +43,7 @@ class ojs_config_tool extends CommandLineTool {
         return $journalId;
     }
 
-    function enablePlugins($journalId, $plugins = false) {
-        $plugins = $plugins or $this->options['plugins'] or array();
+    function enablePlugins($journalId, $plugins = array()) {
         echo "enable pugins: " . print_r($plugins, 1);
         foreach (PluginRegistry::getCategories() as $category) {
             $plugins = PluginRegistry::loadCategory($category, false, $journalId);
@@ -80,15 +78,13 @@ class ojs_config_tool extends CommandLineTool {
       return $plugin;
     }
 
-    function setJournalTheme($journalId, $theme = false) {
-        $theme = $theme or $this->options['theme'] or "ClassicRedThemePlugin";
+    function setJournalTheme($journalId, $theme = "ClassicRedThemePlugin") {
         $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
     }
 
-    function setTheme($theme = false) {
-        $theme = $theme or $this->options['theme'] or "ClassicRedThemePlugin";
+    function setTheme($theme = "ClassicRedThemePlugin") {
         $this->_getTheme($theme);
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
@@ -99,9 +95,9 @@ class ojs_config_tool extends CommandLineTool {
 
 try {
   $tool = new ojs_config_tool($opt);
-  $journalId = $tool->createJournal();
-  $tool->enablePlugins($journalId);
-  $tool->setTheme();
+  $journalId = $tool->createJournal($opt["title"], $opt["path"]);
+  $tool->enablePlugins($journalId, $opt["journal.plugins"]);
+  $tool->setTheme($opt["theme"]);
 } catch (Exception $e) {
   error($e->getMessage());
 }
