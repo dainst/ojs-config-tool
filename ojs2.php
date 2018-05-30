@@ -15,6 +15,10 @@ if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
 require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
 import('classes.journal.Journal');
 
+function error($msg) {
+  fwrite(STDERR, "$msg\n");
+  exit(1);
+}
 
 class ojs_config_tool extends CommandLineTool {
 
@@ -26,7 +30,9 @@ class ojs_config_tool extends CommandLineTool {
         $this->options = $opt;
     }
 
-    function createJournal($title='test', $path='test') {
+    function createJournal($title = false, $path = false) {
+        $title = $title or $this->options['title'];
+        $path = $path or $this->options['path'];
         $journal = New Journal();
         $journal->setPath('test');
         $journal->setEnabled(true);
@@ -38,7 +44,9 @@ class ojs_config_tool extends CommandLineTool {
         return $journalId;
     }
 
-    function enablePlugins($journalId) {
+    function enablePlugins($journalId, $plugins = false) {
+        $plugins = $plugins or $this->options['plugins'] or array();
+        echo "enable pugins: " . print_r($plugins, 1);
         foreach (PluginRegistry::getCategories() as $category) {
             $plugins = PluginRegistry::loadCategory($category, false, $journalId);
             echo "\n========== $category ===========\n";
@@ -63,9 +71,38 @@ class ojs_config_tool extends CommandLineTool {
 
         }
     }
+
+    private function _getTheme($theme) {
+      $plugin = PluginRegistry::getPlugin("themes", $theme);
+      if (!method_exists($plugin, activate)) {
+          error("")
+      }
+      return $plugin;
+    }
+
+    function setJournalTheme($journalId, $theme = false) {
+        $theme = $theme or "ClassicRedThemePlugin";
+        $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
+        $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
+    }
+
+    function setTheme($theme = false) {
+        $theme = $theme or "ClassicRedThemePlugin";
+        $this->_getTheme($theme);
+        $siteDao = DAORegistry::getDAO('SiteDAO');
+        $site = $siteDao->getSite();
+        $site->updateSetting('siteTheme', $theme, 'string', false);
+    }
+
 }
 
-$tool = new ojs_config_tool($opt);
-$journalId = $tool->createJournal();
-$tool->enablePlugins($journalId);
+try {
+  $tool = new ojs_config_tool($opt);
+  $journalId = $tool->createJournal();
+  $tool->enablePlugins($journalId);
+  $tool->setTheme();
+} catch (Exception $e) {
+  error($e->getMessage());
+}
+
 ?>
