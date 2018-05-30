@@ -58,6 +58,7 @@ class ojs_config_tool extends CommandLineTool {
 
     function enablePlugins($journalId, $plugins) {
         if (!is_array($plugins)) {
+            echo "No Plugins to enable";
             return;
         }
         foreach ($plugins as $pluginAndCategory) {
