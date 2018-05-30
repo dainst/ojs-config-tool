@@ -68,7 +68,7 @@ class ojs_config_tool extends CommandLineTool {
             }
 
             if ($plugin->isSitePlugin()) {
-                echo " (sidewide) "
+                echo " (sidewide) ";
                 $plugin->updateSetting(null, 'enabled', true);
             } else {
                 $plugin->updateSetting($journalId, 'enabled', true);
