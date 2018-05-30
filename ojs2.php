@@ -5,9 +5,26 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'on');
 //*/
 
-$opt = getopt("", array("path::", "journal.plugins::", "journal.theme::", "journal.title::", "journal.path::", "theme::"));
-$opt['path'] = !isset($opt['path']) ? '/var/www/html/ojs/' : realpath($opt['path']);
-$opt['plugins'] = !isset($opt['plugins']) ? array() : explode(",", $opt['plugins']);
+$opt = getopt(
+    "",
+    array(
+        "path::",
+        "journal.plugins::",
+        "journal.theme::",
+        "journal.title::",
+        "journal.path::",
+        "theme::"
+    )
+) + array(
+    "path" => '/var/www/html/ojs/',
+    "journal.plugins" => "ClassicRedThemePlugin",
+    "journal.theme" => "ClassicRedThemePlugin",
+    "journal.title" => "test",
+    "journal.path" => "test",
+    "theme" => "ClassicRedThemePlugin"
+);
+$opt['path'] = realpath($opt['path']);
+$opt['plugins'] = explode(",", $opt['plugins']);
 
 if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
     die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
@@ -30,7 +47,7 @@ class ojs_config_tool extends CommandLineTool {
         $this->options = $opt;
     }
 
-    function createJournal($title = "test", $path = "test") {
+    function createJournal($title, $path) {
         echo "Creating Journal with title '$title' and path '$path'...";
         $path = $path or $this->options['path'];
         $journal = New Journal();
@@ -45,7 +62,7 @@ class ojs_config_tool extends CommandLineTool {
         return $journalId;
     }
 
-    function enablePlugins($journalId, $plugins = array()) {
+    function enablePlugins($journalId, $plugins) {
         echo "Enable Plugins: " . print_r($plugins, 1) . '...';
         foreach (PluginRegistry::getCategories() as $category) {
             $plugins = PluginRegistry::loadCategory($category, false, $journalId);
@@ -80,7 +97,7 @@ class ojs_config_tool extends CommandLineTool {
         return $plugin;
     }
 
-    function setJournalTheme($journalId, $theme = "ClassicRedThemePlugin") {
+    function setJournalTheme($journalId, $theme) {
         echo "Set theme $theme for Journal...";
         $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
@@ -88,7 +105,7 @@ class ojs_config_tool extends CommandLineTool {
         echo "seccess";
     }
 
-    function setTheme($theme = "ClassicRedThemePlugin") {
+    function setTheme($theme) {
         echo "Set theme $theme...";
         $this->_getTheme($theme);
         $siteDao = DAORegistry::getDAO('SiteDAO');
