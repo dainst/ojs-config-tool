@@ -75,7 +75,7 @@ class ojs_config_tool extends CommandLineTool {
     private function _getTheme($theme) {
       $plugin = PluginRegistry::getPlugin("themes", $theme);
       if (!method_exists($plugin, activate)) {
-          error("")
+          error("$theme does not exist!");
       }
       return $plugin;
     }
