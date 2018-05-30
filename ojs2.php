@@ -31,6 +31,7 @@ class ojs_config_tool extends CommandLineTool {
     }
 
     function createJournal($title = "test", $path = "test") {
+        echo "Creating Journal with title '$title' and path '$path'...";
         $path = $path or $this->options['path'];
         $journal = New Journal();
         $journal->setPath('test');
@@ -40,11 +41,12 @@ class ojs_config_tool extends CommandLineTool {
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
+        echo "seccess";
         return $journalId;
     }
 
     function enablePlugins($journalId, $plugins = array()) {
-        echo "enable pugins: " . print_r($plugins, 1);
+        echo "Enable Plugins: " . print_r($plugins, 1) . '...';
         foreach (PluginRegistry::getCategories() as $category) {
             $plugins = PluginRegistry::loadCategory($category, false, $journalId);
             echo "\n========== $category ===========\n";
@@ -65,30 +67,34 @@ class ojs_config_tool extends CommandLineTool {
             } else {
                 echo "none found\n";
             }
-
+            echo "seccess";
 
         }
     }
 
     private function _getTheme($theme) {
-      $plugin = PluginRegistry::getPlugin("themes", $theme);
-      if (!method_exists($plugin, "activate")) {
-          error("$theme does not exist!");
-      }
-      return $plugin;
+        $plugin = PluginRegistry::getPlugin("themes", $theme);
+        if (!method_exists($plugin, "activate")) {
+              error("$theme does not exist!");
+        }
+        return $plugin;
     }
 
     function setJournalTheme($journalId, $theme = "ClassicRedThemePlugin") {
+        echo "Set theme $theme for Journal...";
         $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
+        echo "seccess";
     }
 
     function setTheme($theme = "ClassicRedThemePlugin") {
+        echo "Set theme $theme...";
         $this->_getTheme($theme);
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
         $site->updateSetting('siteTheme', $theme, 'string', false);
+        echo "seccess";
     }
 
 }
