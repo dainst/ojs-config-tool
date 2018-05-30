@@ -52,7 +52,7 @@ class ojs_config_tool extends CommandLineTool {
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
-        echo "seccess\n";
+        echo "success\n";
         return $journalId;
     }
 
@@ -67,14 +67,14 @@ class ojs_config_tool extends CommandLineTool {
                 continue;
             }
 
-            if ($plugin->isSitePlugin() {
+            if ($plugin->isSitePlugin()) {
                 echo " (sidewide) "
                 $plugin->updateSetting(null, 'enabled', true);
             } else {
                 $plugin->updateSetting($journalId, 'enabled', true);
             }
 
-            echo "seccess\n";
+            echo "success\n";
         }
 
     }
@@ -92,7 +92,7 @@ class ojs_config_tool extends CommandLineTool {
         $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
-        echo "seccess\n";
+        echo "success\n";
     }
 
     function setTheme($theme) {
@@ -101,7 +101,7 @@ class ojs_config_tool extends CommandLineTool {
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
         $site->updateSetting('siteTheme', $theme, 'string', false);
-        echo "seccess\n";
+        echo "success\n";
     }
 
 }
