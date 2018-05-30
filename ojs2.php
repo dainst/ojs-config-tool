@@ -67,13 +67,13 @@ class ojs_config_tool extends CommandLineTool {
             $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
             if (!is_a($plugin, "Plugin")) {
-                echo "nope, becaus it's a " . get_class($plugin);
+                echo "nope, because it's a " . get_class($plugin);
                 continue;
             }
 
             if ($plugin->isSitePlugin()) {
                 echo " (sidewide) ";
-                $plugin->updateSetting(null, 'enabled', true);
+                $plugin->updateSetting(0, 'enabled', true);
             } else {
                 $plugin->updateSetting($journalId, 'enabled', true);
             }
