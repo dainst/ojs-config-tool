@@ -81,13 +81,14 @@ class ojs_config_tool extends CommandLineTool {
     }
 
     function setJournalTheme($journalId, $theme = false) {
-        $theme = $theme or "ClassicRedThemePlugin";
+        $theme = $theme or $this->options['theme'] or "ClassicRedThemePlugin";
+        $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
     }
 
     function setTheme($theme = false) {
-        $theme = $theme or "ClassicRedThemePlugin";
+        $theme = $theme or $this->options['theme'] or "ClassicRedThemePlugin";
         $this->_getTheme($theme);
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
