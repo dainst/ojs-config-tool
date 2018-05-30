@@ -66,7 +66,7 @@ class ojs_config_tool extends CommandLineTool {
             list($category, $pluginName) = explode("/", $pluginAndCategory);
             $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
-            if (!is_a("Plugin", $plugin)) {
+            if (!is_a($plugin, "Plugin")) {
                 echo "nope\n";
                 continue;
             }
