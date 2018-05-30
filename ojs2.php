@@ -41,12 +41,6 @@ class ojs_config_tool extends CommandLineTool {
 
     public $options = array();
 
-    function __construct($opt = array()) {
-        parent::__construct();
-
-        $this->options = $opt;
-    }
-
     function createJournal($title, $path) {
         echo "Creating Journal with title '$title' and path '$path'...";
         $path = $path or $this->options['path'];
@@ -58,39 +52,35 @@ class ojs_config_tool extends CommandLineTool {
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
-        echo "seccess";
+        echo "seccess\n";
         return $journalId;
     }
 
     function enablePlugins($journalId, $plugins) {
-        echo "Enable Plugins: " . print_r($plugins, 1) . '...';
-        foreach (PluginRegistry::getCategories() as $category) {
-            $plugins = PluginRegistry::loadCategory($category, false, $journalId);
-            echo "\n========== $category ===========\n";
-            if (is_array($plugins)) {
-                foreach ($plugins as $id => $plugin) {
-                    echo "\n[$id]";
-                    //echo print_r($plugin);
-                    echo "\nn: " . $plugin->getName();
-                    echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
+        foreach ($plugins as $pluginAndCategory) {
+            echo "Enable Plugin: $pluginAndCategory ...";
+            list($category, $pluginName) = split($pluginAndCategory);
+            $plugin = PluginRegistry::loadPlugin($category, $pluginName);
 
-                    if (in_array($plugin->getName(), $this->options['plugins'])) {
-                        $plugin->updateSetting($journalId, 'enabled', true);
-                        echo "\n I ENABLED IT, LOOK:";
-                        echo "\ne: " . $plugin->getSetting($journalId, 'enabled');
-                    }
-                    echo "\n";
-                }
-            } else {
-                echo "none found\n";
+            if (is_a("Plugin", $plugin)) {
+                echo "nope\n";
+                continue;
             }
-            echo "seccess";
 
+            if ($plugin->isSitePlugin() {
+                echo " (sidewide) "
+                $plugin->updateSetting(null, 'enabled', true);
+            } else {
+                $plugin->updateSetting($journalId, 'enabled', true);
+            }
+
+            echo "seccess\n";
         }
+
     }
 
     private function _getTheme($theme) {
-        $plugin = PluginRegistry::getPlugin("themes", $theme);
+        $plugin = PluginRegistry::loadPlugin("themes", $theme);
         if (!method_exists($plugin, "activate")) {
               error("$theme does not exist!");
         }
@@ -102,7 +92,7 @@ class ojs_config_tool extends CommandLineTool {
         $this->_getTheme($theme);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'journalTheme', $theme, 'string', false);
-        echo "seccess";
+        echo "seccess\n";
     }
 
     function setTheme($theme) {
@@ -111,16 +101,17 @@ class ojs_config_tool extends CommandLineTool {
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
         $site->updateSetting('siteTheme', $theme, 'string', false);
-        echo "seccess";
+        echo "seccess\n";
     }
 
 }
 
 try {
-  $tool = new ojs_config_tool($opt);
+  $tool = new ojs_config_tool();
   $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
-  //$tool->enablePlugins($journalId, $opt["journal.plugins"]);
+  $tool->enablePlugins($journalId, $opt["journal.plugins"]);
   $tool->setTheme($opt["theme"]);
+  $tool->setJournalTheme($journalId, $opt["journal.theme"]);
 } catch (Exception $e) {
   error($e->getMessage());
 }
