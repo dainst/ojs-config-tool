@@ -113,7 +113,7 @@ class ojs_config_tool extends CommandLineTool {
     function setDfmTheme($theme) {
         echo "Set dfm theme $theme...";
         $plugin = PluginRegistry::getPlugin('generic', 'dfm');
-        $plugin->updateSetting(CONTEXT_ID_NONE, 'dfm_theme', $theme,);
+        $plugin->updateSetting(CONTEXT_ID_NONE, 'dfm_theme', $theme);
         echo "success\n";
     }
 
