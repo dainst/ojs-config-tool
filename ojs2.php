@@ -13,7 +13,8 @@ $opt = getopt(
         "journal.theme::",
         "journal.title::",
         "journal.path::",
-        "theme::"
+        "theme::",
+        "dfm.theme::"
     )
 ) + array(
     "path" => '/var/www/html/ojs/',
@@ -21,7 +22,8 @@ $opt = getopt(
     "journal.theme" => "desert",
     "journal.title" => "test",
     "journal.path" => "test",
-    "theme" => "desert"
+    "theme" => "desert",
+    "dfm.theme" => "dai_tcpdf_theme"
 );
 $opt['path'] = realpath($opt['path']);
 $opt['journal.plugins'] = explode(",", $opt['journal.plugins']);
@@ -73,7 +75,7 @@ class ojs_config_tool extends CommandLineTool {
 
             if ($plugin->isSitePlugin()) {
                 echo " (sidewide) ";
-                $plugin->updateSetting(0, 'enabled', true);
+                $plugin->updateSetting(CONTEXT_ID_NONE, 'enabled', true);
             } else {
                 $plugin->updateSetting($journalId, 'enabled', true);
             }
@@ -108,6 +110,12 @@ class ojs_config_tool extends CommandLineTool {
         echo "success\n";
     }
 
+    function setDfmTheme($theme) {
+        echo "Set dfm theme $theme...";
+        $plugin = PluginRegistry::getPlugin('generic', 'dfm');
+        $plugin->updateSetting(CONTEXT_ID_NONE, 'dfm_theme', $theme,);
+        echo "success\n";
+    }
 
     function clearTemplateCache() {
         $templateMgr =& TemplateManager::getManager();
@@ -122,6 +130,7 @@ try {
   $tool->enablePlugins($journalId, $opt["journal.plugins"]);
   $tool->setTheme($opt["theme"]);
   $tool->setJournalTheme($journalId, $opt["journal.theme"]);
+  $tool->setDfmTheme($journalId, $opt["dfm.theme"]);
   $tool->clearTemplateCache();
 } catch (Exception $e) {
   error($e->getMessage());
