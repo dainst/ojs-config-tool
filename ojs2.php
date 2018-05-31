@@ -130,7 +130,7 @@ try {
   $tool->enablePlugins($journalId, $opt["journal.plugins"]);
   $tool->setTheme($opt["theme"]);
   $tool->setJournalTheme($journalId, $opt["journal.theme"]);
-  $tool->setDfmTheme($journalId, $opt["dfm.theme"]);
+  $tool->setDfmTheme($opt["dfm.theme"]);
   $tool->clearTemplateCache();
 } catch (Exception $e) {
   error($e->getMessage());
