@@ -1,4 +1,28 @@
 <?php
+/**
+ * command line tool to give an fresj ojs installtion a absic configaraion
+ *
+ * usage
+ *
+ * php ojs2.php
+ *
+ * parameters:
+ *
+ * -- path=<path to OJS2 installton. defaults to  /var/www/html/ojs/>
+ * -- journal.path=<new journal path>
+ * -- journal.path=<new journal title>
+ * -- theme=<selected theme for site (name of the plugin folder) !>
+ * -- journal.theme=<selected theme for journal (name of the plugin folder) !>
+ * -- dfm.theme=<the for the frontammter plugin>
+ * -- journal.plugins=<list of activate plugins> form:
+ *  generic/dfm,pubIds/urnDNB (comma-separated list of plugins paths including plugin category
+ *
+ *
+ *
+ *
+ *
+ */
+
 
 /*
 error_reporting(E_ALL);
