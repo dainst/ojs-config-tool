@@ -47,7 +47,7 @@ class ojs_config_tool extends CommandLineTool {
         echo "Creating Journal with title '$title' and path '$path'...";
         $path = $path or $this->options['path'];
         $journal = New Journal();
-        $journal->setPath('test');
+        $journal->setPath($path);
         $journal->setEnabled(true);
         $journal->setPrimaryLocale(AppLocale::getLocale());
         $journalDao = DAORegistry::getDAO('JournalDAO');
