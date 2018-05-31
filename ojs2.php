@@ -56,9 +56,9 @@ class ojs_config_tool extends CommandLineTool {
         $locale = AppLocale::getLocale();
         $journalSettingsDao->updateSetting($journalId, 'title', array($locale => $title), 'string', true);
         $journalSettingsDao->updateSetting($journalId, 'primary_locale', $locale, 'string', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales',          "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedLocales',              "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales',    "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales',          array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedLocales',              array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales',    array($locale), 'object', false);
         echo "success\n";
         return $journalId;
     }
