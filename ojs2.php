@@ -54,6 +54,7 @@ class ojs_config_tool extends CommandLineTool {
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
         $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
+        $journalSettingsDao->updateSetting($journalId, 'primary_locale', AppLocale::getLocale(), 'string', false);
         echo "success\n";
         return $journalId;
     }
@@ -125,15 +126,15 @@ class ojs_config_tool extends CommandLineTool {
 }
 
 try {
-  $tool = new ojs_config_tool();
-  $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
-  $tool->enablePlugins($journalId, $opt["journal.plugins"]);
-  $tool->setTheme($opt["theme"]);
-  $tool->setJournalTheme($journalId, $opt["journal.theme"]);
-  $tool->setDfmTheme($opt["dfm.theme"]);
-  $tool->clearTemplateCache();
+    $tool = new ojs_config_tool();
+    $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
+    $tool->enablePlugins($journalId, $opt["journal.plugins"]);
+    $tool->setTheme($opt["theme"]);
+    $tool->setJournalTheme($journalId, $opt["journal.theme"]);
+    $tool->setDfmTheme($opt["dfm.theme"]);
+    $tool->clearTemplateCache();
 } catch (Exception $e) {
-  error($e->getMessage());
+    error($e->getMessage());
 }
 
 ?>
