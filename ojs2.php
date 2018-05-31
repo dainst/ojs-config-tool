@@ -53,8 +53,12 @@ class ojs_config_tool extends CommandLineTool {
         $journalDao = DAORegistry::getDAO('JournalDAO');
         $journalId = $journalDao->insertJournal($journal);
         $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
-        $journalSettingsDao->updateSetting($journalId, 'title', array(AppLocale::getLocale()=>$title), 'string', true);
-        $journalSettingsDao->updateSetting($journalId, 'primary_locale', AppLocale::getLocale(), 'string', false);
+        $locale = AppLocale::getLocale();
+        $journalSettingsDao->updateSetting($journalId, 'title', array($locale => $title), 'string', true);
+        $journalSettingsDao->updateSetting($journalId, 'primary_locale', $locale, 'string', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales',          "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedLocales',              "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales',    "a:1:{i:0;s:5:\"$locale\";}", 'object', false);
         echo "success\n";
         return $journalId;
     }
