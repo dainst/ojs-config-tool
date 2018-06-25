@@ -80,12 +80,25 @@ class ojs_config_tool extends CommandLineTool {
         $locale = AppLocale::getLocale();
         $journalSettingsDao->updateSetting($journalId, 'title', array($locale => $title), 'string', true);
         $journalSettingsDao->updateSetting($journalId, 'primary_locale', $locale, 'string', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales',          array($locale), 'object', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedLocales',              array($locale), 'object', false);
-        $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales',    array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales', array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedLocales', array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales', array($locale), 'object', false);
         echo "success\n";
         return $journalId;
     }
+
+    function giveRolesToAdmin($journalId) {
+        $userDAO = DAORegistry::getDAO('UserDAO');
+        $admin = $userDAO->getById(1);
+        $roleDao =& DAORegistry::getDAO('RoleDAO');
+        $roles = array(ROLE_ID_JOURNAL_MANAGER, ROLE_ID_EDITOR, ROLE_ID_SECTION_EDITOR, ROLE_ID_LAYOUT_EDITOR, ROLE_ID_LAYOUT_EDITOR,
+            ROLE_ID_REVIEWER, ROLE_ID_COPYEDITOR, ROLE_ID_PROOFREADER, ROLE_ID_AUTHOR, ROLE_ID_READER, ROLE_ID_SUBSCRIPTION_MANAGER);
+        foreach ($roles as $role) {
+            $roleDao->insertRole($journalId, 1, $role);
+        }
+
+    }
+
 
     function enablePlugins($journalId, $plugins) {
         if (!is_array($plugins)) {
@@ -156,6 +169,7 @@ class ojs_config_tool extends CommandLineTool {
 try {
     $tool = new ojs_config_tool();
     $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
+    $tool->giveRolesToAdmin($journalId);
     $tool->enablePlugins($journalId, $opt["journal.plugins"]);
     $tool->setTheme($opt["theme"]);
     $tool->setJournalTheme($journalId, $opt["journal.theme"]);
