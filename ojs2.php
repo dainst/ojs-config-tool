@@ -89,22 +89,21 @@ class ojs_config_tool extends CommandLineTool {
 
     function giveRolesToAdmin($journalId) {
         $roleDao =& DAORegistry::getDAO('RoleDAO');
-        $roles = array(ROLE_ID_JOURNAL_MANAGER, ROLE_ID_EDITOR, ROLE_ID_SECTION_EDITOR, ROLE_ID_LAYOUT_EDITOR, ROLE_ID_LAYOUT_EDITOR,
-            ROLE_ID_REVIEWER, ROLE_ID_COPYEDITOR, ROLE_ID_PROOFREADER, ROLE_ID_AUTHOR, ROLE_ID_READER, ROLE_ID_SUBSCRIPTION_MANAGER);
+        $roles = array(ROLE_ID_JOURNAL_MANAGER, ROLE_ID_EDITOR, ROLE_ID_SECTION_EDITOR, ROLE_ID_LAYOUT_EDITOR, ROLE_ID_REVIEWER,
+            ROLE_ID_COPYEDITOR, ROLE_ID_PROOFREADER, ROLE_ID_AUTHOR, ROLE_ID_READER, ROLE_ID_SUBSCRIPTION_MANAGER);
         foreach ($roles as $roleId) {
-            echo ROLE_ID_JOURNAL_MANAGER + 0.0;
-//            $role = new Role($role);
-//            $role->setRoleId($roleId);
-//            $role->setUserId(1);
-//            $role->setJournalId($journalId);
-//            $roleDao->insertRole($role);
+            $role = new Role($role);
+            $role->setRoleId($roleId);
+            $role->setUserId(1);
+            $role->setJournalId($journalId);
+            $roleDao->insertRole($role);
         }
 
     }
 
 
     function enablePlugins($journalId, $plugins) {
-        if (!is_array($plugins)) {
+        if (!is_array($plugins) or !count($plugins)) {
             echo "No Plugins to enable";
             return;
         }
