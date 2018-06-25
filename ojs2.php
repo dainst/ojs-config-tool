@@ -92,7 +92,7 @@ class ojs_config_tool extends CommandLineTool {
         $roles = array(ROLE_ID_JOURNAL_MANAGER, ROLE_ID_EDITOR, ROLE_ID_SECTION_EDITOR, ROLE_ID_LAYOUT_EDITOR, ROLE_ID_REVIEWER,
             ROLE_ID_COPYEDITOR, ROLE_ID_PROOFREADER, ROLE_ID_AUTHOR, ROLE_ID_READER, ROLE_ID_SUBSCRIPTION_MANAGER);
         foreach ($roles as $roleId) {
-            $role = new Role($role);
+            $role = new Role();
             $role->setRoleId($roleId);
             $role->setUserId(1);
             $role->setJournalId($journalId);
@@ -102,7 +102,7 @@ class ojs_config_tool extends CommandLineTool {
     }
 
 
-    function enablePlugins($journalId, $plugins) {
+    function enablePlugins($journalId, $plugins = array()) {
         if (!is_array($plugins) or !count($plugins)) {
             echo "No Plugins to enable";
             return;
