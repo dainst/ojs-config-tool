@@ -1,9 +1,10 @@
 <?php
 
 /** 
- * Author: Dennis Twardy
- * Copyright: Deutsches Archäologisches Institut 
- * Contact: idai.publications@dainst.de
+ * Author: Dennis Twardy (kontakt@dennistwardy.com)
+ * Maintainer: Deutsches Archäologisches Institut (dev@dainst.de)
+ * 
+ * Copyright: Deutsches Archäologisches Institut (DAI)
  * Licensed under GNU GPL v3. For full terms see LICENSE file.
  * 
  * Attributions:
@@ -11,6 +12,17 @@
  * 
  * Description:
  * Small command line tool to setup OJS with a new journal and by default the administrator with all default roles.
+ * 
+ * Usage:
+ * php ojs3config.php
+ *
+ * Parameters:
+ * -- path=<path to OJS3 installton. defaults to  /var/www/html>
+ * -- journal.path=<new journal path>
+ * -- journal.title=<new journal title>
+ * -- journal.plugins=<list of activate plugins> form:
+ *  generic/dfm,pubIds/urnDNB (comma-separated list of plugins paths including plugin category
+ *
  */
 
 $opt = getopt(
@@ -18,26 +30,20 @@ $opt = getopt(
     array(
         "path::",
         "journal.plugins::",
-        "journal.theme::",
         "journal.title::",
         "journal.path::",
-        "theme::",
-        "dfm.theme::"
     )
 ) + array(
-    "path" => '/var/www/html/ojs3/',
+    "path" => '/var/www/html',
     "journal.plugins" => "",
-    "journal.theme" => "desert",
     "journal.title" => "test",
     "journal.path" => "test",
-    "theme" => "desert",
-    "dfm.theme" => "dai_tcpdf_theme"
 );
 $opt['path'] = realpath($opt['path']);
 $opt['journal.plugins'] = explode(",", $opt['journal.plugins']);
 
 if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
-    die("No OJS2 installation at '{$opt['path']}' found. Aborted.'\n");
+    die("No OJS3 installation at '{$opt['path']}' found. Aborted.'\n");
 }
 require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
 import('classes.journal.Journal');
