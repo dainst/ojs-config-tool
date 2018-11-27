@@ -3,11 +3,13 @@ A very small command line tool wich can be used by th docker contain for example
 
 ## ojs2
 Usage:
-php ojs-config-tool ojs2.php --path=[OJS2 installion path]
+
+`php ojs-config-tool ojs2.php --path=[OJS2 installion path]`
 
 ## ojs3
 Usage:
-php ojs3.php
+
+`php ojs3.php`
 
 Parameters:
  * -- path=<path to OJS3 installton. defaults to  /var/www/html>
