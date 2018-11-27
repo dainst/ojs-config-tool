@@ -13,5 +13,4 @@ Parameters:
  * -- path=<path to OJS3 installton. defaults to  /var/www/html>
  * -- journal.path=<new journal path>
  * -- journal.title=<new journal title>
- * -- journal.plugins=<list of activate plugins> form:
- **  generic/dfm,pubIds/urnDNB (comma-separated list of plugins paths including plugin category
+ * -- journal.plugins=<list of activate plugins> form: generic/dfm,pubIds/urnDNB (comma-separated list of plugins paths including plugin category
