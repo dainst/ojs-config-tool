@@ -83,6 +83,7 @@ class ojs_config_tool extends CommandLineTool {
         $journalSettingsDao->updateSetting($journalId, 'supportedFormLocales', array($locale), 'object', false);
         $journalSettingsDao->updateSetting($journalId, 'supportedLocales', array($locale), 'object', false);
         $journalSettingsDao->updateSetting($journalId, 'supportedSubmissionLocales', array($locale), 'object', false);
+        $journalSettingsDao->updateSetting($journalId, 'copyrightYearBasis', 'article', 'string', false);
         echo "success\n";
         return $journalId;
     }
