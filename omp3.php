@@ -275,6 +275,8 @@ class omp_config_tool extends CommandLineTool {
 
 }
 
+set_time_limit(0);
+
 try {
     $tool = new omp_config_tool();
     $pressId = $tool->createPress($opt["press.title"], $opt["press.path"]);
@@ -282,8 +284,7 @@ try {
     $tool->setTheme($opt["theme"]);
     $tool->setPressTheme($pressId, $opt["press.theme"]);
     $tool->giveUserRoles($pressId);
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     error($e->getMessage());
 }
 ?>
