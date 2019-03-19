@@ -54,6 +54,14 @@ function error($msg) {
   exit(1);
 }
 
+register_shutdown_function(function()  {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
+        error("Error: {$error['message']} in line {$error['line']} of {$error['file']}\n");
+    }
+});
+
+
 class omp_config_tool extends CommandLineTool {
 
     //
@@ -136,8 +144,7 @@ class omp_config_tool extends CommandLineTool {
                         ROLE_ID_AUTHOR,   
                         ROLE_ID_REVIEWER,
                         ROLE_ID_ASSISTANT, 
-                        ROLE_ID_READER, 
-                        ROLE_ID_SUBSCRIPTION_MANAGER);
+                        ROLE_ID_READER);
         $userGroupDao = DAORegistry::getDAO('UserGroupDAO');
         foreach ($roles as $roleId) {
             $group = $userGroupDao->getDefaultByRoleId($pressId, $roleId);
