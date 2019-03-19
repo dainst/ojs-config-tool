@@ -31,6 +31,8 @@ $opt = getopt(
         "press.plugins::",
         "press.title::",
         "press.path::",
+        "press.theme::",
+        "theme::"
     )
 ) + array(
     "path" => '/var/www/html',
