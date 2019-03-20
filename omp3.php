@@ -45,6 +45,7 @@ $opt = getopt(
 $opt['path'] = realpath($opt['path']);
 $opt['press.plugins'] = explode(",", $opt['press.plugins']);
 
+
 if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
     die("No OMP3 installation at '{$opt['path']}' found. Aborted.'\n");
 }
@@ -268,7 +269,7 @@ class omp_config_tool extends CommandLineTool {
         echo "Set theme '$theme' for press...";
         $this->_getTheme($theme);
         $pressSettingsDao =& DAORegistry::getDAO('PressSettingsDAO');
-        $pressSettingsDao->updateSetting($pressId, 'themePluginPath', 'default', 'string', false); //TODO enable if dainst theme available.
+        $pressSettingsDao->updateSetting($pressId, 'themePluginPath', $theme, 'string', false);
         echo "success\n";
     }
 
