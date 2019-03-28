@@ -24,6 +24,16 @@
  *
  */
 
+
+register_shutdown_function(function()  {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
+        echo "Error: {$error['message']} in line {$error['line']} of {$error['file']}\n";
+    }
+    echo "\n";
+});
+
+
 $opt = getopt(
     "",
     array(
@@ -74,6 +84,8 @@ class omp_config_tool extends CommandLineTool {
     // $path = path of the new press
     function createPress($title, $path) {
 
+        echo "Create press >>$title<< on path '$path'...";
+
         $pressDao = DAORegistry::getDAO('PressDAO');
         $press = $pressDao->newDataObject();
         $press->setPath($path);
@@ -108,30 +120,18 @@ class omp_config_tool extends CommandLineTool {
         $pressSettingsDao->updateSetting($pressId, 'supportedLocales', array($locale, 'en_US'), 'object', false);
         $pressSettingsDao->updateSetting($pressId, 'supportedSubmissionLocales', array($locale, 'en_US'), 'object', false);
 
-        // Create a default "Articles" section
-//        $sectionDao = DAORegistry::getDAO('SectionDAO');
-//        $section = new Section();
-//        $section->setPressId($press->getId());
-//        $section->setTitle(__('section.default.title'), $press->getPrimaryLocale());
-//        $section->setAbbrev(__('section.default.abbrev'), $press->getPrimaryLocale());
-//        $section->setMetaIndexed(true);
-//        $section->setMetaReviewed(true);
-//        $section->setPolicy(__('section.default.policy'), $press->getPrimaryLocale());
-//        $section->setEditorRestricted(false);
-//        $section->setHideTitle(false);
-//        $sectionDao->insertObject($section);
-
         $press->updateSetting('name', $title, 'string', true);
 
 		// Install default menus
 		$navigationMenuDao = DAORegistry::getDAO('NavigationMenuDAO');
         $navigationMenuDao->installSettings($pressId, 'registry/navigationMenus.xml');
 
-
+        PluginRegistry::loadAllPlugins(false);
         AppLocale::requireComponents(LOCALE_COMPONENT_APP_DEFAULT, LOCALE_COMPONENT_PKP_DEFAULT);
 
         HookRegistry::call('ContextSettingsForm::execute', array($this, $press, true));
 
+        echo "..done\n";
         return $pressId;
     }
 
@@ -141,6 +141,7 @@ class omp_config_tool extends CommandLineTool {
     // $pressId = internal contextId
     // $userId = Id of user to be modified (optional, defaults to Admin)
     function giveUserRoles($pressId, $userId = 1) {
+        echo "Give user roles...";
         // Give administrator all default roles
         $roles = array(ROLE_ID_MANAGER, 
                         ROLE_ID_SUB_EDITOR,
@@ -153,6 +154,7 @@ class omp_config_tool extends CommandLineTool {
             $group = $userGroupDao->getDefaultByRoleId($pressId, $roleId);
             $userGroupDao->assignUserToGroup($userId, $group->getId());
         }
+        echo "done\n";
     }
 
     //
@@ -247,9 +249,9 @@ class omp_config_tool extends CommandLineTool {
 
             if ($plugin->isSitePlugin()) {
                 echo " (sidewide) ";
-                $plugin->updateSetting(CONTEXT_ID_NONE, 'enabled', true);
+                $plugin->updateSetting(CONTEXT_ID_NONE, 'enabled', true, 'bool');
             } else {
-                $plugin->updateSetting($pressId, 'enabled', true);
+                $plugin->updateSetting($pressId, 'enabled', true, 'bool');
             }
 
             echo "success\n";
@@ -262,12 +264,15 @@ class omp_config_tool extends CommandLineTool {
         if (!method_exists($plugin, "setEnabled")) {
             error("$theme does not exist!");
         }
+
         return $plugin;
     }
 
     function setPressTheme($pressId, $theme) {
         echo "Set theme '$theme' for press...";
-        $this->_getTheme($theme);
+        $plugin = $this->_getTheme($theme);
+        $plugin->setEnabled(true);
+        $plugin->updateSetting($pressId, 'enabled', true, 'bool');
         $pressSettingsDao =& DAORegistry::getDAO('PressSettingsDAO');
         $pressSettingsDao->updateSetting($pressId, 'themePluginPath', $theme, 'string', false);
         echo "success\n";
@@ -275,13 +280,60 @@ class omp_config_tool extends CommandLineTool {
 
     function setTheme($theme) {
         echo "Set theme '$theme' for site...";
-        $this->_getTheme($theme);
+        $plugin = $this->_getTheme($theme);
+        $plugin->setEnabled(true);
+        $plugin->updateSetting(0, 'enabled', true, 'bool');
         $siteDao = DAORegistry::getDAO('SiteDAO');
         $site = $siteDao->getSite();
         $site->updateSetting('themePluginPath', $theme, 'string', false);
         echo "success\n";
     }
 
+    function registerPluginVersions() {
+        echo "Register Plugin versions...";
+        $plugins = PluginRegistry::loadAllPlugins(false);
+
+        $versionDao = DAORegistry::getDAO('VersionDAO');
+        import('lib.pkp.classes.site.VersionCheck');
+        $fileManager = new FileManager();
+
+        $notHiddenPlugins = array();
+        foreach ((array) $plugins as $plugin) {
+            if (!$plugin->getHideManagement()) {
+                $notHiddenPlugins[$plugin->getName()] = $plugin;
+            }
+            $version = $plugin->getCurrentVersion();
+            if ($version == null) { // this plugin is on the file system, but not installed.
+                $versionFile = $plugin->getPluginPath() . '/version.xml';
+                if ($fileManager->fileExists($versionFile)) {
+                    $versionInfo = VersionCheck::parseVersionXML($versionFile);
+                    $pluginVersion = $versionInfo['version'];
+                } else {
+                    $pluginVersion = new Version(
+                        1, 0, 0, 0, // Major, minor, revision, build
+                        Core::getCurrentDate(), // Date installed
+                        1,	// Current
+                        'plugins.'.$plugin->getCategory(), // Type
+                        basename($plugin->getPluginPath()), // Product
+                        '',	// Class name
+                        0,	// Lazy load
+                        $plugin->isSitePlugin()	// Site wide
+                    );
+                }
+                $versionDao->insertVersion($pluginVersion, true);
+            }
+        }
+
+        echo "done\n";
+        return $notHiddenPlugins;
+    }
+
+    function clearCache() {
+        // Clear the template cache so that new settings can take effect
+        $templateMgr = TemplateManager::getManager(Application::getRequest());
+        $templateMgr->clearTemplateCache();
+        $templateMgr->clearCssCache();
+    }
 
 }
 
@@ -293,7 +345,10 @@ try {
     $tool->enablePlugins($pressId, $opt["press.plugins"]);
     $tool->setTheme($opt["theme"]);
     $tool->setPressTheme($pressId, $opt["press.theme"]);
+    $tool->registerPluginVersions();
     $tool->giveUserRoles($pressId);
+    $tool->clearCache();
+
 } catch (Exception $e) {
     error($e->getMessage());
 }
