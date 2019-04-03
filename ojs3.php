@@ -66,7 +66,7 @@ require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
 import('classes.journal.Journal');
 
 
-class omp_config_tool extends CommandLineTool {
+class ojs_config_tool extends CommandLineTool {
 
     //
     // createJournal
@@ -236,7 +236,7 @@ class omp_config_tool extends CommandLineTool {
 		return __($matches[1]);
 	}
 
-    function enablePlugins($pressId, $plugins = array()) {
+    function enablePlugins($journalId, $plugins = array()) {
         if (!is_array($plugins) or !count($plugins)) {
             echo "No Plugins to enable";
             return;
@@ -256,7 +256,7 @@ class omp_config_tool extends CommandLineTool {
                 echo " (sidewide) ";
                 $plugin->updateSetting(CONTEXT_ID_NONE, 'enabled', true, 'bool');
             } else {
-                $plugin->updateSetting($pressId, 'enabled', true, 'bool');
+                $plugin->updateSetting($journalId, 'enabled', true, 'bool');
             }
 
             echo "success\n";
@@ -273,13 +273,13 @@ class omp_config_tool extends CommandLineTool {
         return $plugin;
     }
 
-    function setJournalTheme($pressId, $theme) {
-        echo "Set theme '$theme' for press...";
+    function setJournalTheme($journalId, $theme) {
+        echo "Set theme '$theme' for Journal...";
         $plugin = $this->_getTheme($theme);
         $plugin->setEnabled(true);
-        $plugin->updateSetting($pressId, 'enabled', true, 'bool');
-        $pressSettingsDao =& DAORegistry::getDAO('PressSettingsDAO');
-        $pressSettingsDao->updateSetting($pressId, 'themePluginPath', $theme, 'string', false);
+        $plugin->updateSetting($journalId, 'enabled', true, 'bool');
+        $journalSettingsDao =& DAORegistry::getDAO('JournalSettingsDAO');
+        $journalSettingsDao->updateSetting($journalId, 'themePluginPath', $theme, 'string', false);
         echo "success\n";
     }
 
@@ -347,9 +347,9 @@ set_time_limit(0);
 try {
     $tool = new ojs_config_tool();
     $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
-    $tool->enablePlugins($pressId, $opt["press.plugins"]);
+    $tool->enablePlugins($journalId, $opt["journal.plugins"]);
     $tool->setTheme($opt["theme"]);
-    $tool->setJournalTheme($pressId, $opt["journal.theme"]);
+    $tool->setJournalTheme($journalId, $opt["journal.theme"]);
     $tool->registerPluginVersions();
     $tool->giveUserRoles($journalId);
     $tool->clearCache();
