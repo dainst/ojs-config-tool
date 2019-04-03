@@ -25,12 +25,16 @@
  */
 
 
+function error($msg) {
+    fwrite(STDERR, "$msg\n");
+    exit(1);
+}
+
 register_shutdown_function(function()  {
     $error = error_get_last();
     if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
-        echo "Error: {$error['message']} in line {$error['line']} of {$error['file']}\n";
+        error("Error: {$error['message']} in line {$error['line']} of {$error['file']}\n");
     }
-    echo "\n";
 });
 
 
@@ -60,18 +64,6 @@ if (!file_exists(realpath($opt['path'] . '/tools/bootstrap.inc.php'))) {
 }
 require(realpath($opt['path'] . '/tools/bootstrap.inc.php'));
 import('classes.journal.Journal');
-
-function error($msg) {
-  fwrite(STDERR, "$msg\n");
-  exit(1);
-}
-
-register_shutdown_function(function()  {
-    $error = error_get_last();
-    if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
-        error("Error: {$error['message']} in line {$error['line']} of {$error['file']}\n");
-    }
-});
 
 
 class omp_config_tool extends CommandLineTool {
