@@ -1,7 +1,6 @@
 <?php
 
-/** 
- * Author: Dennis Twardy (kontakt@dennistwardy.com)
+/**
  * Maintainer: Deutsches Archäologisches Institut (dev@dainst.de)
  * 
  * Copyright: Deutsches Archäologisches Institut (DAI)
@@ -25,6 +24,16 @@
  *
  */
 
+
+register_shutdown_function(function()  {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
+        echo "Error: {$error['message']} in line {$error['line']} of {$error['file']}\n";
+    }
+    echo "\n";
+});
+
+
 $opt = getopt(
     "",
     array(
@@ -32,12 +41,16 @@ $opt = getopt(
         "journal.plugins::",
         "journal.title::",
         "journal.path::",
+        "journal.theme::",
+        "theme::"
     )
 ) + array(
     "path" => '/var/www/html',
     "journal.plugins" => "",
     "journal.title" => "test",
     "journal.path" => "test",
+    "journal.theme" => "default",
+    "theme" => "default"
 );
 $opt['path'] = realpath($opt['path']);
 $opt['journal.plugins'] = explode(",", $opt['journal.plugins']);
@@ -53,8 +66,15 @@ function error($msg) {
   exit(1);
 }
 
-class ojs_config_tool extends CommandLineTool {
-    public $options = array();
+register_shutdown_function(function()  {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], array(E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING))) {
+        error("Error: {$error['message']} in line {$error['line']} of {$error['file']}\n");
+    }
+});
+
+
+class omp_config_tool extends CommandLineTool {
 
     //
     // createJournal
@@ -88,7 +108,7 @@ class ojs_config_tool extends CommandLineTool {
         $fileManager->mkdir(Config::getVar('files', 'public_files_dir') . '/journals/' . $journalId);
 
         // Install default journal settings
-       $journalSettingsDao = DAORegistry::getDAO('JournalSettingsDAO');
+        $journalSettingsDao = DAORegistry::getDAO('JournalSettingsDAO');
         $names = $title;
         AppLocale::requireComponents(LOCALE_COMPONENT_APP_DEFAULT, LOCALE_COMPONENT_APP_COMMON);
         $this->installSettings($journalId,'registry/journalSettings.xml');
@@ -123,6 +143,7 @@ class ojs_config_tool extends CommandLineTool {
         
         HookRegistry::call('JournalSiteSettingsForm::execute', array($this, $journal, $section, true));
 
+        echo "..done\n";
         return $journalId;
     }
 
@@ -132,6 +153,7 @@ class ojs_config_tool extends CommandLineTool {
     // $journalId = internal contextId
     // $userId = Id of user to be modified (optional, defaults to Admin)
     function giveUserRoles($journalId, $userId = 1) {
+        echo "Give user roles...";
         // Give administrator all default roles
         $roles = array(ROLE_ID_MANAGER, 
                         ROLE_ID_SUB_EDITOR,
@@ -145,13 +167,14 @@ class ojs_config_tool extends CommandLineTool {
             $group = $userGroupDao->getDefaultByRoleId($journalId, $roleId);
             $userGroupDao->assignUserToGroup($userId, $group->getId());
         }
+        echo "done\n";
     }
 
-//
-// ----------------
-// helper functions
-// ----------------
-//
+    //
+    // ----------------
+    // helper functions
+    // ----------------
+    //
     function installSettings($id, $filename, $paramArray = array()) {
         $xmlParser = new XMLParser();
         $tree = $xmlParser->parse($filename);
@@ -220,14 +243,126 @@ class ojs_config_tool extends CommandLineTool {
     function _installer_regexp_callback($matches) {
 		return __($matches[1]);
 	}
+
+    function enablePlugins($pressId, $plugins = array()) {
+        if (!is_array($plugins) or !count($plugins)) {
+            echo "No Plugins to enable";
+            return;
+        }
+        foreach ($plugins as $pluginAndCategory) {
+            if (!$pluginAndCategory) {continue;}
+            echo "Enable Plugin: $pluginAndCategory ...";
+            list($category, $pluginName) = explode("/", $pluginAndCategory);
+            $plugin = PluginRegistry::loadPlugin($category, $pluginName);
+
+            if (!is_a($plugin, "Plugin")) {
+                echo "nope, because it's a " . get_class($plugin);
+                continue;
+            }
+
+            if ($plugin->isSitePlugin()) {
+                echo " (sidewide) ";
+                $plugin->updateSetting(CONTEXT_ID_NONE, 'enabled', true, 'bool');
+            } else {
+                $plugin->updateSetting($pressId, 'enabled', true, 'bool');
+            }
+
+            echo "success\n";
+        }
+
+    }
+
+    private function _getTheme($theme) {
+        $plugin = PluginRegistry::loadPlugin("themes", $theme);
+        if (!method_exists($plugin, "setEnabled")) {
+            error("$theme does not exist!");
+        }
+
+        return $plugin;
+    }
+
+    function setJournalTheme($pressId, $theme) {
+        echo "Set theme '$theme' for press...";
+        $plugin = $this->_getTheme($theme);
+        $plugin->setEnabled(true);
+        $plugin->updateSetting($pressId, 'enabled', true, 'bool');
+        $pressSettingsDao =& DAORegistry::getDAO('PressSettingsDAO');
+        $pressSettingsDao->updateSetting($pressId, 'themePluginPath', $theme, 'string', false);
+        echo "success\n";
+    }
+
+    function setTheme($theme) {
+        echo "Set theme '$theme' for site...";
+        $plugin = $this->_getTheme($theme);
+        $plugin->setEnabled(true);
+        $plugin->updateSetting(0, 'enabled', true, 'bool');
+        $siteDao = DAORegistry::getDAO('SiteDAO');
+        $site = $siteDao->getSite();
+        $site->updateSetting('themePluginPath', $theme, 'string', false);
+        echo "success\n";
+    }
+
+    function registerPluginVersions() {
+        echo "Register Plugin versions...";
+        $plugins = PluginRegistry::loadAllPlugins(false);
+
+        $versionDao = DAORegistry::getDAO('VersionDAO');
+        import('lib.pkp.classes.site.VersionCheck');
+        $fileManager = new FileManager();
+
+        $notHiddenPlugins = array();
+        foreach ((array) $plugins as $plugin) {
+            if (!$plugin->getHideManagement()) {
+                $notHiddenPlugins[$plugin->getName()] = $plugin;
+            }
+            $version = $plugin->getCurrentVersion();
+            if ($version == null) { // this plugin is on the file system, but not installed.
+                $versionFile = $plugin->getPluginPath() . '/version.xml';
+                if ($fileManager->fileExists($versionFile)) {
+                    $versionInfo = VersionCheck::parseVersionXML($versionFile);
+                    $pluginVersion = $versionInfo['version'];
+                } else {
+                    $pluginVersion = new Version(
+                        1, 0, 0, 0, // Major, minor, revision, build
+                        Core::getCurrentDate(), // Date installed
+                        1,	// Current
+                        'plugins.'.$plugin->getCategory(), // Type
+                        basename($plugin->getPluginPath()), // Product
+                        '',	// Class name
+                        0,	// Lazy load
+                        $plugin->isSitePlugin()	// Site wide
+                    );
+                }
+                $versionDao->insertVersion($pluginVersion, true);
+            }
+        }
+
+        echo "done\n";
+        return $notHiddenPlugins;
+    }
+
+    function clearCache() {
+        // Clear the template cache so that new settings can take effect
+        $templateMgr = TemplateManager::getManager(Application::getRequest());
+        $templateMgr->clearTemplateCache();
+        $templateMgr->clearCssCache();
+    }
+
 }
 
+set_time_limit(0);
+
 try {
-    $testTool = new ojs_config_tool();
-    $journalId = $testTool->createJournal($opt["journal.title"], $opt["journal.path"]);
-    $testTool->giveUserRoles($journalId);
-}
-catch (Exception $e) {
+    $tool = new ojs_config_tool();
+    $journalId = $tool->createJournal($opt["journal.title"], $opt["journal.path"]);
+    $tool->enablePlugins($pressId, $opt["press.plugins"]);
+    $tool->setTheme($opt["theme"]);
+    $tool->setJournalTheme($pressId, $opt["journal.theme"]);
+    $tool->registerPluginVersions();
+    $tool->giveUserRoles($journalId);
+    $tool->clearCache();
+
+} catch (Exception $e) {
     error($e->getMessage());
 }
 ?>
